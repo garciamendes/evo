@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import type { Activity } from "@/content/types";
 import { toggleCompleted, useProgress } from "@/lib/progress";
+import { saveVoiceName, savedVoiceName, speakEnglish, useEnglishVoices, useSpeechSupported } from "@/lib/speech";
 import { TrackBadge } from "./ui";
 
 export function CompleteButton({ id }: { id: string }) {
@@ -80,23 +81,18 @@ export function Hints({ hints }: { hints: string[] }) {
   );
 }
 
-const noopSubscribe = () => () => {};
-
 export function ListeningPlayer({ sentences }: { sentences: string[] }) {
-  // null on the server; speechSynthesis only exists in the browser.
-  const supported = useSyncExternalStore(
-    noopSubscribe,
-    () => "speechSynthesis" in window,
-    () => null,
-  );
+  const supported = useSpeechSupported();
+  const voices = useEnglishVoices(supported);
   const [showTranscript, setShowTranscript] = useState(false);
+  const [voiceName, setVoiceName] = useState<string | null>(null);
+  const [slow, setSlow] = useState(false);
+
+  const chosenName = voiceName ?? (supported ? savedVoiceName() : null);
+  const voice = voices.find((v) => v.name === chosenName) ?? voices[0];
 
   function speak(text: string) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 0.75;
-    window.speechSynthesis.speak(utterance);
+    speakEnglish(text, voice, slow ? 0.7 : 0.95);
   }
 
   return (
@@ -104,6 +100,40 @@ export function ListeningPlayer({ sentences }: { sentences: string[] }) {
       {supported === false && (
         <p className="mb-2 text-sm text-muted">
           Este navegador não tem áudio de voz. Leia a transcrição em voz alta e use a pronúncia dos exemplos.
+        </p>
+      )}
+      {supported && voices.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <label className="flex min-w-0 items-center gap-2">
+            <span className="text-muted">Voz</span>
+            <select
+              value={voice?.name}
+              onChange={(e) => {
+                setVoiceName(e.target.value);
+                saveVoiceName(e.target.value);
+              }}
+              className="min-w-0 max-w-56 rounded-md border border-border bg-surface px-2 py-1"
+            >
+              {voices.map((v) => (
+                <option key={v.name} value={v.name}>
+                  {v.name} ({v.lang})
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            aria-pressed={slow}
+            onClick={() => setSlow((v) => !v)}
+            className={`rounded-md border border-border px-3 py-1 ${slow ? "bg-accent text-accent-foreground" : ""}`}
+          >
+            Devagar
+          </button>
+        </div>
+      )}
+      {supported && voices.length === 0 && (
+        <p className="mb-2 text-sm text-muted">
+          Este aparelho não tem voz em inglês instalada. Instale uma nas configurações de voz do sistema ou use o Chrome.
         </p>
       )}
       <ol className="space-y-2">
