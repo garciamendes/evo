@@ -178,3 +178,47 @@ body {
 .hljs-params {
   color: #e4e4ec;
 }
+
+/* Markdown editor (@uiw/react-md-editor) themed with the app tokens */
+.md-editor .w-md-editor {
+  --color-canvas-default: var(--background);
+  --color-fg-default: var(--foreground);
+  --color-border-default: var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  box-shadow: none;
+  overflow: hidden;
+}
+.md-editor .w-md-editor-toolbar {
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+  padding: 4px;
+}
+.md-editor .w-md-editor-toolbar li > button {
+  height: 28px;
+  padding: 4px 6px;
+  color: var(--muted);
+}
+.md-editor .w-md-editor-toolbar li > button:hover,
+.md-editor .w-md-editor-toolbar li.active > button {
+  color: var(--accent);
+  background: var(--surface);
+}
+.md-editor .w-md-editor-toolbar svg {
+  width: 15px;
+  height: 15px;
+}
+.md-editor .w-md-editor-text-pre > code,
+.md-editor .w-md-editor-text-input {
+  font-family: var(--font-mono) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+.md-editor .w-md-editor-preview {
+  background: var(--background);
+}
+.md-editor .w-md-editor-bar {
+  background: var(--surface-muted);
+}
