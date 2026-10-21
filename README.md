@@ -1,3 +1,5 @@
+<img src="public/logo.svg" alt="Study Hub" height="48">
+
 # Study Hub
 
 Sistema pessoal de estudos de programação, inglês e IA, feito em Next.js (App Router), React, TypeScript e Tailwind.

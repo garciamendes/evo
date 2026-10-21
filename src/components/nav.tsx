@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Account } from "./account";
+import { LogoMark } from "./logo";
 
 const LINKS = [
   { href: "/", label: "Hoje" },
@@ -23,7 +24,8 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface md:h-screen md:w-60 md:shrink-0 md:border-r md:border-b-0">
       <div className="flex items-center justify-between px-4 py-3 md:py-6">
-        <Link href="/" className="text-lg font-semibold" onClick={() => setOpen(false)}>
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold" onClick={() => setOpen(false)}>
+          <LogoMark />
           Study Hub
         </Link>
         <button
