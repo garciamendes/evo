@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Homework deliveries are reviewed in PRs, not linted with the site.
     "homework/**",
+    // Monaco build copied by scripts/copy-monaco.mjs.
+    "public/monaco/**",
   ]),
 ]);
 

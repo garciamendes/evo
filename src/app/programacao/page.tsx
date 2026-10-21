@@ -48,7 +48,8 @@ export default function ProgramacaoPage() {
             <AnswerBox
               id={c.id}
               title={`Desafio ${c.id}: ${c.title}`}
-              prompt="Explique seu raciocínio e cole o código, se houver."
+              prompt="Explique seu raciocínio e escreva o código no editor."
+              code
             />
           </Card>
         ))}
