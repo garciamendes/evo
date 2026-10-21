@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { isCorrected, type Answer, type AnswerView } from "@/lib/answers";
 import { useSession } from "@/lib/session";
 import { Markdown } from "./markdown";
+import { MarkdownEditor } from "./markdown-editor";
 
 type Props = { id: string; title: string; prompt?: string };
 
@@ -32,7 +33,6 @@ function AnswerEditor({ id, title, prompt }: Props) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,40 +95,16 @@ function AnswerEditor({ id, title, prompt }: Props) {
         <p className="mt-2 text-sm text-muted">Carregando…</p>
       ) : (
         <>
-          <div role="tablist" aria-label="Modo do editor" className="mt-2 flex gap-1 text-xs">
-            {[
-              { value: false, label: "Escrever" },
-              { value: true, label: "Visualizar" },
-            ].map((tab) => (
-              <button
-                key={tab.label}
-                type="button"
-                role="tab"
-                aria-selected={preview === tab.value}
-                onClick={() => setPreview(tab.value)}
-                className={`rounded-md px-2.5 py-1 ${preview === tab.value ? "bg-surface-muted font-medium" : "text-muted"}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          {preview ? (
-            <div className="mt-1 min-h-36 rounded-lg border border-border bg-background p-3">
-              {text.trim() ? <Markdown>{text}</Markdown> : <p className="text-sm text-muted">Nada para visualizar.</p>}
-            </div>
-          ) : (
-            <textarea
+          <div className="mt-2">
+            <MarkdownEditor
               id={`answer-${id}`}
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={8}
-              spellCheck={false}
-              className="mt-1 w-full rounded-lg border border-border bg-background p-3 font-mono text-sm"
+              onChange={setText}
               placeholder="Escreva com as suas palavras, sem pedir para uma IA."
             />
-          )}
+          </div>
           <p className="mt-1 text-xs text-muted">
-            Aceita Markdown: **negrito**, listas com -, `código` e blocos com ``` (ex.: ```python).
+            Use a barra para formatar. Tab indenta o código; Esc e depois Tab sai do editor.
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
