@@ -39,6 +39,15 @@ O login usa o GitHub só para confirmar quem é você. Os dados ficam num reposi
 
 Para rodar localmente com login, crie outro OAuth App com callback `http://localhost:3000/api/auth/callback` e coloque as variáveis em `.env.local`.
 
+## Correção automática
+
+Duas GitHub Actions chamam o Claude:
+
+- `garciamendes/evo-dados`, `.github/workflows/corrigir.yml`: quando o site salva uma resposta enviada, corrige as pendentes seguindo `CORRECAO.md` e faz commit em `correcoes/`.
+- Este repositório, `.github/workflows/corrigir-dever.yml`: quando um PR mexe em `homework/`, revisa o dever com comentários no PR.
+
+Cada repositório precisa de um secret: `CLAUDE_CODE_OAUTH_TOKEN` (gerado com `claude setup-token`, usa a assinatura Pro/Max) ou `ANTHROPIC_API_KEY` (cobrado por uso). Sem o secret, as Actions só avisam e não fazem nada.
+
 ## Rodando localmente
 
 ```bash

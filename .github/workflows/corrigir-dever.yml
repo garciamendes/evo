@@ -1,0 +1,66 @@
+name: Corrigir dever
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    paths: ["homework/**"]
+
+concurrency:
+  group: corrigir-dever-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  corrigir:
+    # Secrets are not available to pull requests from forks; only the owner's own branches are reviewed.
+    if: github.event.pull_request.head.repo.full_name == github.repository && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Chave configurada?
+        id: chave
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+        run: |
+          echo "ok=$HAS_KEY" >> "$GITHUB_OUTPUT"
+          [ "$HAS_KEY" = "true" ] || echo "::warning::Sem ANTHROPIC_API_KEY ou CLAUDE_CODE_OAUTH_TOKEN nos secrets; correção automática desligada."
+
+      - uses: actions/checkout@v6
+        if: steps.chave.outputs.ok == 'true'
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v6
+        if: steps.chave.outputs.ok == 'true'
+        with:
+          python-version: "3.12"
+
+      - uses: anthropics/claude-code-action@v1
+        if: steps.chave.outputs.ok == 'true'
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Você é o mentor de estudos do Matheus e vai corrigir um dever de casa entregue neste PR.
+            Leia homework/README.md, o dever correspondente em src/content/homework.ts e o desafio ligado a ele em src/content/challenges.ts
+            (objetivo, requisitos, critérios de aceite e testes esperados). O corpo do PR diz o que ele fez, o que foi difícil e o que quer que você olhe.
+
+            Regras de mentor:
+            - Escreva em português, direto e encorajador, sem culpa.
+            - Comece pelo que ficou bom, de forma concreta.
+            - Para cada problema, explique o porquê e dê uma dica que leve à solução. NÃO escreva o código da solução por ele.
+            - Confira cada critério de aceite e diga quais foram atendidos.
+            - Se houver testes, rode-os (instale requirements.txt se existir). Diga exatamente o que rodou e o resultado. Nunca diga que testes passaram sem ter rodado.
+            - Termine com no máximo 3 próximos passos e uma pergunta para ele explicar uma decisão com as próprias palavras.
+
+            Use `mcp__github_inline_comment__create_inline_comment` (com `confirmed: true`) para comentários em linhas específicas
+            e `gh pr comment` para o resumo geral. Só publique comentários no GitHub.
+          claude_args: |
+            --model claude-sonnet-5-5
+            --max-turns 40
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(pip install:*),Bash(python:*),Bash(python3:*),Bash(pytest:*),Read,Glob,Grep"

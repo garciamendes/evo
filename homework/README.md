@@ -1,6 +1,6 @@
 # Deveres de casa
 
-Cada dever é entregue por **Pull Request** neste repositório. A correção acontece no próprio PR, com comentários linha a linha.
+Cada dever é entregue por **Pull Request** neste repositório. A correção acontece no próprio PR, com comentários linha a linha. Ela começa sozinha quando o PR é aberto ou recebe um push (Action `corrigir-dever`).
 
 ## Estrutura
 
