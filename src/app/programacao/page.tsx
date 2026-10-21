@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnswerBox } from "@/components/answer-box";
 import { CompleteButton, Hints } from "@/components/interactive";
 import { Card, List, PageHeader, SectionTitle } from "@/components/ui";
 import { CHALLENGES } from "@/content/challenges";
@@ -44,6 +45,11 @@ export default function ProgramacaoPage() {
               <SectionTitle>Dicas</SectionTitle>
               <Hints hints={c.hints} />
             </details>
+            <AnswerBox
+              id={c.id}
+              title={`Desafio ${c.id}: ${c.title}`}
+              prompt="Explique seu raciocínio e cole o código, se houver."
+            />
           </Card>
         ))}
       </div>

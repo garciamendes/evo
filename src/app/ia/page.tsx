@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnswerBox } from "@/components/answer-box";
 import { CompleteButton } from "@/components/interactive";
 import { Card, List, PageHeader, SectionTitle } from "@/components/ui";
 import { AI_STAGES } from "@/content/ai";
@@ -37,6 +38,7 @@ export default function IaPage() {
                 <p className="mt-2 text-xs font-semibold text-muted">Critérios de conclusão</p>
                 <List items={stage.exercise.criteria} />
               </div>
+              <AnswerBox id={stage.id} title={`IA etapa ${stage.stage}: ${stage.exercise.title}`} />
             </details>
           </Card>
         ))}

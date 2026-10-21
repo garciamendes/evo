@@ -18,8 +18,24 @@ Sistema pessoal de estudos de programação, inglês e IA, feito em Next.js (App
 ## Onde ficam os dados
 
 - **Conteúdo** (roteiro, lições, desafios, deveres): `src/content/*.ts`, atualizado a cada sessão.
-- **Progresso** (checklists, modo, diário): `localStorage` do navegador. **Não sincroniza entre aparelhos.** Use exportar/importar em `/progresso` para mover os dados.
-- **Deveres**: pasta `homework/`, entregues por PR (veja `homework/README.md`).
+- **Progresso** (checklists, modo, diário): fica no `localStorage` e, com login, é espelhado em `progresso.json` no repositório privado de dados. Sem login, não sincroniza entre aparelhos.
+- **Respostas**: com login, cada exercício tem uma caixa de resposta. Ela salva `respostas/<id>.json` no repositório de dados. A correção é escrita em `correcoes/<id>.md` (primeira linha `<!-- revisao: N -->`) e aparece embaixo da resposta.
+- **Deveres de código**: pasta `homework/`, entregues por PR (veja `homework/README.md`).
+
+## Login e repositório de dados
+
+O login usa o GitHub só para confirmar quem é você. Os dados ficam num repositório **privado** separado, acessado por um token restrito a ele. O repositório `evo` é público, então nada pessoal fica nele.
+
+1. **Repositório de dados:** crie o repositório privado `evo-dados` no GitHub, marcando "Add a README".
+2. **Token:** em GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens, crie um token com *Repository access: Only select repositories → evo-dados* e *Permissions → Contents: Read and write*.
+3. **OAuth App:** em GitHub → Settings → Developer settings → OAuth Apps → New OAuth App, use:
+   - Homepage URL: `https://<seu-dominio>.vercel.app`
+   - Authorization callback URL: `https://<seu-dominio>.vercel.app/api/auth/callback`
+
+   Depois gere um *client secret*.
+4. **Vercel:** em Project → Settings → Environment Variables, cadastre as variáveis de `.env.example` e faça um novo deploy.
+
+Para rodar localmente com login, crie outro OAuth App com callback `http://localhost:3000/api/auth/callback` e coloque as variáveis em `.env.local`.
 
 ## Rodando localmente
 
