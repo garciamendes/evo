@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { isCorrected, type Answer, type AnswerView } from "@/lib/answers";
+import { joinCodeAnswer, splitCodeAnswer, type CodeLanguage } from "@/lib/code-answer";
 import { useSession } from "@/lib/session";
+import { CodeEditor } from "./code-editor";
 import { Markdown } from "./markdown";
 import { MarkdownEditor } from "./markdown-editor";
 
-type Props = { id: string; title: string; prompt?: string };
+/** `code` adds a VS Code-style editor; its content is stored as a fenced block at the end of the answer. */
+type Props = { id: string; title: string; prompt?: string; code?: boolean };
 
-export function AnswerBox({ id, title, prompt }: Props) {
+export function AnswerBox({ id, title, prompt, code }: Props) {
   const session = useSession();
   const login = session.status === "ready" ? session.login : null;
 
@@ -25,12 +28,15 @@ export function AnswerBox({ id, title, prompt }: Props) {
       </p>
     );
   }
-  return <AnswerEditor key={id} id={id} title={title} prompt={prompt} />;
+  return <AnswerEditor key={id} id={id} title={title} prompt={prompt} code={code} />;
 }
 
-function AnswerEditor({ id, title, prompt }: Props) {
+function AnswerEditor({ id, title, prompt, code: withCode }: Props) {
   const [view, setView] = useState<AnswerView | null>(null);
-  const [text, setText] = useState("");
+  const [explanation, setExplanation] = useState("");
+  const [code, setCode] = useState("");
+  const [language, setLanguage] = useState<CodeLanguage>("python");
+  const text = withCode ? joinCodeAnswer(explanation, code, language) : explanation;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,13 +50,21 @@ function AnswerEditor({ id, title, prompt }: Props) {
       .then((data) => {
         if (cancelled) return;
         setView(data);
-        setText(data.answer?.answer ?? "");
+        const saved = data.answer?.answer ?? "";
+        if (withCode) {
+          const parts = splitCodeAnswer(saved);
+          setExplanation(parts.explanation);
+          setCode(parts.code);
+          setLanguage(parts.language);
+        } else {
+          setExplanation(saved);
+        }
       })
       .catch((e: Error) => !cancelled && setError(e.message));
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, withCode]);
 
   async function save(submit: boolean) {
     setBusy(true);
@@ -98,14 +112,24 @@ function AnswerEditor({ id, title, prompt }: Props) {
           <div className="mt-2">
             <MarkdownEditor
               id={`answer-${id}`}
-              value={text}
-              onChange={setText}
-              placeholder="Escreva com as suas palavras, sem pedir para uma IA."
+              value={explanation}
+              onChange={setExplanation}
+              placeholder={
+                withCode
+                  ? "Explique seu raciocínio aqui. O código vai no editor abaixo."
+                  : "Escreva com as suas palavras, sem pedir para uma IA."
+              }
             />
           </div>
           <p className="mt-1 text-xs text-muted">
             Use a barra para formatar. Tab indenta o código; Esc e depois Tab sai do editor.
           </p>
+          {withCode && (
+            <div className="mt-3">
+              <p className="mb-1 text-sm font-semibold">Código</p>
+              <CodeEditor value={code} onChange={setCode} language={language} onLanguageChange={setLanguage} />
+            </div>
+          )}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
               type="button"
