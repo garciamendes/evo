@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { TRACK_LABEL, type Track } from "@/content/types";
 
@@ -18,9 +21,16 @@ export function PageHeader({ title, description }: { title: string; description?
 
 export function Card({ children, className = "", id }: { children: ReactNode; className?: string; id?: string }) {
   return (
-    <section id={id} className={`scroll-mt-20 rounded-xl border border-border bg-surface p-4 md:p-5 ${className}`}>
+    <motion.section
+      id={id}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={`scroll-mt-20 rounded-xl border border-border bg-surface p-4 md:p-5 ${className}`}
+    >
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -63,7 +73,12 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
         aria-valuemin={0}
         aria-valuemax={100}
       >
-        <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-accent to-ia"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+        />
       </div>
     </div>
   );

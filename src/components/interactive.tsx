@@ -1,43 +1,71 @@
 "use client";
 
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import type { Activity } from "@/content/types";
 import { toggleCompleted, useProgress } from "@/lib/progress";
 import { saveVoiceName, savedVoiceName, speakEnglish, useEnglishVoices, useSpeechSupported } from "@/lib/speech";
+import { Burst, CheckMark } from "./celebrate";
 import { TrackBadge } from "./ui";
 
-export function CompleteButton({ id }: { id: string }) {
+/** Toggles completion and fires confetti when an item becomes done. */
+function useCompletion(id: string) {
   const { completed } = useProgress();
   const done = Boolean(completed[id]);
+  const [burst, setBurst] = useState(0);
+  function toggle() {
+    if (!done) setBurst((n) => n + 1);
+    toggleCompleted(id);
+  }
+  return { done, burst, toggle };
+}
+
+export function CompleteButton({ id }: { id: string }) {
+  const { done, burst, toggle } = useCompletion(id);
   return (
-    <button
+    <motion.button
       type="button"
-      onClick={() => toggleCompleted(id)}
+      onClick={toggle}
       aria-pressed={done}
-      className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+      whileTap={{ scale: 0.94 }}
+      layout
+      className={`relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium ${
         done ? "bg-success/15 text-success" : "bg-accent text-accent-foreground"
       }`}
     >
-      {done ? "Concluído ✓" : "Marcar como concluído"}
-    </button>
+      {done && <CheckMark checked />}
+      {done ? "Concluído" : "Marcar como concluído"}
+      <Burst fireKey={burst} />
+    </motion.button>
   );
 }
 
 export function ActivityItem({ activity }: { activity: Activity }) {
-  const { completed } = useProgress();
-  const done = Boolean(completed[activity.id]);
+  const { done, burst, toggle } = useCompletion(activity.id);
   return (
-    <li className="flex gap-3 py-3">
-      <input
-        type="checkbox"
-        id={activity.id}
-        checked={done}
-        onChange={() => toggleCompleted(activity.id)}
-        className="mt-1 size-5 shrink-0 accent-[var(--accent)]"
-      />
+    <motion.li layout className="flex gap-3 py-3">
+      <span className="relative mt-0.5 shrink-0">
+        <input type="checkbox" id={activity.id} checked={done} onChange={toggle} className="peer sr-only" />
+        <motion.label
+          htmlFor={activity.id}
+          aria-hidden="true"
+          whileTap={{ scale: 0.85 }}
+          animate={{ scale: done ? [1, 1.25, 1] : 1 }}
+          transition={{ duration: 0.3 }}
+          className={`flex size-6 cursor-pointer items-center justify-center rounded-md border-2 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${
+            done ? "border-success bg-success text-white" : "border-border bg-surface"
+          }`}
+        >
+          <CheckMark checked={done} />
+        </motion.label>
+        <Burst fireKey={burst} spread={36} />
+      </span>
       <div className="min-w-0 flex-1">
-        <label htmlFor={activity.id} className={`font-medium ${done ? "text-muted line-through" : ""}`}>
+        <label
+          htmlFor={activity.id}
+          className={`cursor-pointer font-medium transition-colors ${done ? "text-muted line-through" : ""}`}
+        >
           {activity.title}
         </label>
         <p className="text-sm text-muted">{activity.description}</p>
@@ -51,7 +79,7 @@ export function ActivityItem({ activity }: { activity: Activity }) {
           )}
         </div>
       </div>
-    </li>
+    </motion.li>
   );
 }
 

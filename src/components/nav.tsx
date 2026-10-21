@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Account } from "./account";
@@ -25,7 +26,9 @@ export function Nav() {
     <header className="sticky top-0 z-20 border-b border-border bg-surface md:h-screen md:w-60 md:shrink-0 md:border-r md:border-b-0">
       <div className="flex items-center justify-between px-4 py-3 md:py-6">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold" onClick={() => setOpen(false)}>
-          <LogoMark />
+          <motion.span whileHover={{ rotate: -8, scale: 1.08 }} whileTap={{ scale: 0.92 }} className="inline-flex">
+            <LogoMark />
+          </motion.span>
           Study Hub
         </Link>
         <button
@@ -52,13 +55,18 @@ export function Nav() {
                   href={link.href}
                   aria-current={active ? "page" : undefined}
                   onClick={() => setOpen(false)}
-                  className={`block rounded-md px-3 py-2 text-sm ${
-                    active
-                      ? "bg-surface-muted font-medium text-foreground"
-                      : "text-muted hover:bg-surface-muted hover:text-foreground"
+                  className={`relative block rounded-md px-3 py-2 text-sm transition-colors ${
+                    active ? "font-medium text-foreground" : "text-muted hover:text-foreground"
                   }`}
                 >
-                  {link.label}
+                  {active && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-md bg-surface-muted"
+                      transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                    />
+                  )}
+                  <span className="relative">{link.label}</span>
                 </Link>
               </li>
             );

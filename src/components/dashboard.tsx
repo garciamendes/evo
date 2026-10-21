@@ -4,6 +4,8 @@ import Link from "next/link";
 import { HOMEWORK } from "@/content/homework";
 import { ROADMAP, currentDay, dayIsComplete } from "@/content/roadmap";
 import { setMode, useProgress, useToday } from "@/lib/progress";
+import type { Track } from "@/content/types";
+import { Hero } from "./hero";
 import { ActivityItem } from "./interactive";
 import { Card, ProgressBar } from "./ui";
 
@@ -30,9 +32,22 @@ export function Dashboard() {
   const doneCount = activities.filter((a) => completed[a.id]).length;
   const minutes = activities.reduce((sum, a) => sum + a.minutes, 0);
   const minimumDone = Boolean(completed[day.minimum.id]);
+  // The 3D stair shows today's effort: a track lights up when any of its roadmap activities was completed today.
+  const lit: Record<Track, boolean> = { programacao: false, ingles: false, ia: false };
+  let minimumToday = false;
+  for (const d of ROADMAP) {
+    for (const a of [...d.activities, d.minimum]) {
+      if (today && completed[a.id] === today) {
+        lit[a.track] = true;
+        if (a.id === d.minimum.id) minimumToday = true;
+      }
+    }
+  }
+  const allDone = (lit.programacao && lit.ingles && lit.ia) || (mode === "minimo" && minimumToday);
 
   return (
     <div className="space-y-4">
+      <Hero lit={lit} allDone={allDone} />
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
