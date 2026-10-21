@@ -72,6 +72,8 @@ function AnswerEditor({ id, title, prompt }: Props) {
   const answer = view?.answer ?? null;
   const dirty = text.trim() !== (answer?.answer ?? "");
   const corrected = isCorrected(answer, view?.feedback ?? null, view?.feedbackRevision ?? null);
+  // A submitted answer can only be sent again after it changes; otherwise it would just queue the same text twice.
+  const alreadySent = answer?.status === "enviado" && !dirty;
 
   let status = "Ainda não respondido.";
   if (answer?.status === "rascunho") status = "Rascunho salvo. Envie quando quiser a correção.";
@@ -110,11 +112,11 @@ function AnswerEditor({ id, title, prompt }: Props) {
             </button>
             <button
               type="button"
-              disabled={busy || !text.trim()}
+              disabled={busy || !text.trim() || alreadySent}
               onClick={() => save(true)}
               className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground disabled:opacity-50"
             >
-              {busy ? "Salvando…" : "Enviar para correção"}
+              {busy ? "Salvando…" : answer?.status === "enviado" ? "Reenviar para correção" : "Enviar para correção"}
             </button>
             <span className="text-xs text-muted" role="status">
               {dirty && answer ? "Alterações não salvas. " : ""}

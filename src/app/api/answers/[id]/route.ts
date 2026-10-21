@@ -42,6 +42,8 @@ export async function PUT(request: NextRequest, ctx: RouteContext<"/api/answers/
     const previous = previousFile ? (JSON.parse(previousFile.content) as Answer) : null;
     const now = new Date().toISOString();
     const submit = body.submit === true;
+    // Re-sending an unchanged submitted answer is a double click, not a new revision.
+    if (submit && previous?.status === "enviado" && previous.answer === text) return Response.json({ answer: previous });
 
     const answer: Answer = {
       id,

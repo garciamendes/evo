@@ -36,7 +36,7 @@ export const ENGLISH_UNITS: EnglishUnit[] = [
     listening: ["I am a developer.", "I am tired today.", "The code is wrong.", "You are a student.", "She is happy."],
     exercise: {
       instructions: "Escreva 5 frases sobre você usando am ou is.",
-      items: ["I am ___.", "My name is ___.", "I am ___ years old.", "My work is ___.", "Today I am ___."],
+      items: ["I am ___.", "My name is ___.", "I am ___ years old.", "I work at ___.", "Today I am ___."],
     },
   },
   {
