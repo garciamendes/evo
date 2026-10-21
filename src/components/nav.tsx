@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Account } from "./account";
 
 const LINKS = [
   { href: "/", label: "Hoje" },
@@ -61,6 +62,9 @@ export function Nav() {
             );
           })}
         </ul>
+        <div className="mt-4 border-t border-border px-3 pt-4">
+          <Account onNavigate={() => setOpen(false)} />
+        </div>
       </nav>
     </header>
   );

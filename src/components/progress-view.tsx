@@ -117,7 +117,8 @@ export function ProgressView() {
       <Card>
         <h2 className="font-semibold">Seus dados</h2>
         <p className="mt-1 text-sm text-muted">
-          O progresso fica salvo só neste navegador. Exporte um arquivo para guardar uma cópia ou levar para outro aparelho.
+          Com login, o progresso é salvo no seu repositório privado e aparece em qualquer aparelho. Sem login, ele fica só
+          neste navegador; exporte um arquivo para guardar uma cópia.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={download} className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground">

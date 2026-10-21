@@ -2,8 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 
-// Progress lives in this browser's localStorage only. It does not sync across
-// devices; export/import on the Progress page is the manual way to move it.
+// Progress is cached in this browser's localStorage. When signed in,
+// ProgressSync mirrors it to the private data repository so it follows you
+// across devices; signed out, export/import is the manual way to move it.
 
 export type StudyMode = "normal" | "minimo";
 export type JournalKind = "nota" | "dificuldade" | "pergunta" | "aprendizado";
@@ -37,6 +38,8 @@ const EMPTY: ProgressState = {
 
 let cache: ProgressState | null = null;
 const listeners = new Set<() => void>();
+/** Notified only for changes made in this tab, not for remote pulls. */
+const localWriteListeners = new Set<(state: ProgressState) => void>();
 
 export function todayKey(date = new Date()): string {
   const y = date.getFullYear();
@@ -72,7 +75,7 @@ function read(): ProgressState {
   return cache;
 }
 
-function write(next: ProgressState) {
+function write(next: ProgressState, { fromRemote = false } = {}) {
   cache = next;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -80,6 +83,24 @@ function write(next: ProgressState) {
     // Storage can be unavailable (private mode, quota). Keep the in-memory copy.
   }
   listeners.forEach((listener) => listener());
+  if (!fromRemote) localWriteListeners.forEach((listener) => listener(next));
+}
+
+export function getProgress(): ProgressState {
+  return read();
+}
+
+export function onLocalWrite(listener: (state: ProgressState) => void) {
+  localWriteListeners.add(listener);
+  return () => {
+    localWriteListeners.delete(listener);
+  };
+}
+
+/** Replaces local progress with the copy saved in the data repository. */
+export function applyRemoteProgress(remote: unknown) {
+  const parsed = parse(JSON.stringify(remote));
+  if (parsed !== EMPTY) write(parsed, { fromRemote: true });
 }
 
 function subscribe(listener: () => void) {

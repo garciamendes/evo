@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnswerBox } from "@/components/answer-box";
 import { CompleteButton, ListeningPlayer } from "@/components/interactive";
 import { Card, List, PageHeader, SectionTitle } from "@/components/ui";
 import { ENGLISH_UNITS, LISTENING_ROUTINE } from "@/content/english";
@@ -78,9 +79,11 @@ export default function InglesPage() {
               <SectionTitle>Exercício</SectionTitle>
               <p className="mb-1 text-sm">{unit.exercise.instructions}</p>
               <List items={unit.exercise.items} ordered />
-              <p className="mt-2 text-xs text-muted">
-                Entregue as respostas no chat ou em homework/entregas para eu corrigir.
-              </p>
+              <AnswerBox
+                id={unit.id}
+                title={`Inglês ${unit.id}: ${unit.title}`}
+                prompt="Uma frase por linha, na ordem dos itens."
+              />
             </details>
           </Card>
         ))}

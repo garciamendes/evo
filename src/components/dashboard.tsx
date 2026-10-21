@@ -105,8 +105,8 @@ export function Dashboard() {
       </div>
 
       <p className="text-xs text-muted">
-        Seu progresso fica salvo neste navegador e não sincroniza com outros aparelhos. Para levar para outro aparelho,
-        use exportar e importar na página de <Link href="/progresso" className="underline">progresso</Link>.
+        Sem login, o progresso fica só neste navegador. <Link href="/entrar" className="underline">Entre</Link> para salvar
+        e ver em qualquer aparelho.
       </p>
     </div>
   );
